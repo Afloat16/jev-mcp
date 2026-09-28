@@ -1,0 +1,50 @@
+name: Regenerate lockfile
+
+on:
+  push:
+    branches:
+      - "chore/open-source-polish"
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+
+      - name: Regenerate package-lock.json
+        run: |
+          rm -f package-lock.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Validate lockfile
+        run: |
+          npm ci --no-audit --no-fund
+          npm run check
+
+      - name: Commit generated lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json is already reproducible."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: regenerate npm lockfile"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

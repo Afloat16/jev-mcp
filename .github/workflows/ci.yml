@@ -14,16 +14,25 @@ concurrency:
 
 jobs:
   test:
+    name: Node ${{ matrix.node }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         node: [20.x, 22.x, 24.x]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-      - run: npm install --no-audit --no-fund
-      - run: npm run check
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Repository checks
+        run: npm run check

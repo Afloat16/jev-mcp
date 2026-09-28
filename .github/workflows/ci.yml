@@ -38,11 +38,12 @@ jobs:
       - name: Repository checks
         run: npm run check
 
-
-  installer-smoke:
-    name: GitHub package installer
+  bootstrap-linux:
+    name: Bootstrap / Linux
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      TEST_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
     steps:
       - name: Checkout
@@ -53,17 +54,65 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Run installer from GitHub package in isolated home
+      - name: Run isolated bootstrap
         shell: bash
-        env:
-          PACKAGE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
           temp_home="$(mktemp -d)"
-          HOME="$temp_home" npx -y \
-            --package="github:Afloat16/jev-mcp#${PACKAGE_REF}" \
-            jev-mcp install cursor --skip-key
+          export HOME="$temp_home"
+          export JEV_MCP_CONFIG_HOME="$temp_home/.jev-mcp"
+          export JEV_MCP_RUNTIME_DIR="$temp_home/.jev-mcp/runtime"
+          export JEV_MCP_GIT_REF="$TEST_REF"
+
+          bash scripts/install.sh cursor --skip-key
 
           test -f "$temp_home/.cursor/mcp.json"
+          test -f "$temp_home/.jev-mcp/runtime/dist/cli.js"
           grep -q '"jev"' "$temp_home/.cursor/mcp.json"
+          grep -q 'dist/cli.js' "$temp_home/.cursor/mcp.json"
           ! grep -q 'TYPESAFE_API_KEY' "$temp_home/.cursor/mcp.json"
+          ! test -f "$temp_home/.jev-mcp/.env"
+
+  bootstrap-windows:
+    name: Bootstrap / Windows
+    runs-on: windows-latest
+    timeout-minutes: 12
+    env:
+      TEST_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+
+      - name: Run isolated bootstrap
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $tempHome = Join-Path $env:RUNNER_TEMP "jev-mcp-user"
+          New-Item -ItemType Directory -Force -Path $tempHome | Out-Null
+
+          $env:HOME = $tempHome
+          $env:USERPROFILE = $tempHome
+          $env:JEV_MCP_CONFIG_HOME = Join-Path $tempHome ".jev-mcp"
+          $env:JEV_MCP_RUNTIME_DIR = Join-Path $env:JEV_MCP_CONFIG_HOME "runtime"
+          $env:JEV_MCP_GIT_REF = $env:TEST_REF
+
+          ./scripts/install.ps1 -Target cursor -SkipKey
+
+          $config = Join-Path $tempHome ".cursor/mcp.json"
+          $cli = Join-Path $env:JEV_MCP_RUNTIME_DIR "dist/cli.js"
+          if (-not (Test-Path $config)) { throw "Cursor MCP config was not created." }
+          if (-not (Test-Path $cli)) { throw "Managed jev-mcp runtime was not built." }
+
+          $text = Get-Content $config -Raw
+          if ($text -notmatch '"jev"') { throw "Jev MCP entry missing." }
+          if ($text -notmatch 'dist[\\\\/]cli\.js') { throw "Durable runtime path missing." }
+          if ($text -match 'TYPESAFE_API_KEY') { throw "Credential leaked into client config." }
+          if (Test-Path (Join-Path $env:JEV_MCP_CONFIG_HOME ".env")) {
+            throw "Skip-key smoke test unexpectedly created a credential file."
+          }

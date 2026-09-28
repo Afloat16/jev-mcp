@@ -4,6 +4,18 @@ All notable project changes are documented here.
 
 ## Unreleased
 
+- Added a GitHub-backed `jev-mcp` executable that can run directly through
+  `npx` without cloning the repository.
+- Added one-command installers for Codex, Claude Code, Kimi Code, ZCode,
+  Cursor, Gemini CLI, Windsurf-compatible config, generic `.agents`, and
+  project-scoped VS Code MCP configuration.
+- Added a user-level `~/.jev-mcp/.env` credential store so GUI clients do not
+  need API keys embedded in MCP configuration.
+- Added safe JSON config merging with local backups and platform-aware Windows
+  stdio launching.
+- Added installer unit tests, CLI smoke checks, and dedicated client/install
+  documentation.
+
 - Redesigned the English and Chinese project homepages around quick onboarding,
   tool boundaries, privacy, and a clear host-model/Jev authority model.
 - Added quick-start, FAQ, troubleshooting, examples, support, governance,

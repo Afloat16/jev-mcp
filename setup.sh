@@ -46,5 +46,5 @@ npm run check
 npm run doctor
 
 echo
-echo "jev-mcp v0.4.1 setup complete."
+echo "jev-mcp v0.5.0 setup complete."
 echo "Next: configure your MCP host using config.toml.snippet or the README example, then restart the host."

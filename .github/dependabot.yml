@@ -5,8 +5,23 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      mcp-runtime:
+        patterns:
+          - "@modelcontextprotocol/*"
+          - "zod"
+      typescript-tooling:
+        patterns:
+          - "@types/node"
+          - "tsx"
+          - "typescript"
+
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"

@@ -63,6 +63,43 @@ if (!changelog.includes(`## ${pkg.version}`)) {
   errors.push(`CHANGELOG.md has no section for package version ${pkg.version}`);
 }
 
+const core = readFileSync(join(root, "src/core.ts"), "utf8");
+const coreVersion = core.match(/export const VERSION = "([^"]+)";/)?.[1];
+if (coreVersion !== pkg.version) {
+  errors.push(`src/core.ts VERSION (${coreVersion ?? "missing"}) does not match package.json (${pkg.version})`);
+}
+
+const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
+if (lock.version !== pkg.version || lock.packages?.[""]?.version !== pkg.version) {
+  errors.push(`package-lock.json version does not match package.json (${pkg.version})`);
+}
+
+const stableTag = `v${pkg.version}`;
+const unixInstaller = readFileSync(join(root, "scripts/install.sh"), "utf8");
+const windowsInstaller = readFileSync(join(root, "scripts/install.ps1"), "utf8");
+if (!unixInstaller.includes(`JEV_MCP_GIT_REF:-${stableTag}`)) {
+  errors.push(`scripts/install.sh default ref is not ${stableTag}`);
+}
+if (!windowsInstaller.includes(`"${stableTag}"`)) {
+  errors.push(`scripts/install.ps1 default ref is not ${stableTag}`);
+}
+
+const setupSh = readFileSync(join(root, "setup.sh"), "utf8");
+const setupPs = readFileSync(join(root, "setup.ps1"), "utf8");
+if (!setupSh.includes(`v${pkg.version} setup complete`)) {
+  errors.push(`setup.sh completion version does not match ${pkg.version}`);
+}
+if (!setupPs.includes(`v${pkg.version} setup complete`)) {
+  errors.push(`setup.ps1 completion version does not match ${pkg.version}`);
+}
+
+const readme = readFileSync(join(root, "README.md"), "utf8");
+const stableInstallUrl =
+  `https://raw.githubusercontent.com/Afloat16/jev-mcp/v${pkg.version}/scripts/install.sh`;
+if (!readme.includes(stableInstallUrl)) {
+  errors.push(`README.md does not point stable install at v${pkg.version}`);
+}
+
 for (const required of [
   "README.md",
   "README.zh-CN.md",

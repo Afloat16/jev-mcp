@@ -35,10 +35,10 @@ Targets:
 
 Recommended bootstrap:
   macOS/Linux:
-    curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+    curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
 
   Windows PowerShell:
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.ps1))) -Target codex
 
 After bootstrap, the local CLI lives under ~/.jev-mcp/runtime.
 `.trim());

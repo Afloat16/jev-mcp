@@ -17,13 +17,13 @@ client configuration.
 Codex on macOS/Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
 ```
 
 Codex on Windows PowerShell:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.ps1))) -Target codex
 ```
 
 Other target IDs:
@@ -42,7 +42,7 @@ vscode
 Configure every detected user-level client on macOS/Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash
 ```
 
 The installer creates:

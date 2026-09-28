@@ -42,5 +42,5 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ""
-Write-Host "jev-mcp v0.4.1 setup complete."
+Write-Host "jev-mcp v0.5.0 setup complete."
 Write-Host "Next: configure your MCP host using config.toml.snippet or the README example, then restart the host."

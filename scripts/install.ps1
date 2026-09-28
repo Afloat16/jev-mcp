@@ -35,7 +35,7 @@ $repoUrl = if ([string]::IsNullOrWhiteSpace($env:JEV_MCP_REPO_URL)) {
 }
 
 $gitRef = if ([string]::IsNullOrWhiteSpace($env:JEV_MCP_GIT_REF)) {
-  "main"
+  "v0.5.0"
 } else {
   $env:JEV_MCP_GIT_REF
 }

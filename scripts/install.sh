@@ -22,7 +22,7 @@ fi
 config_home="${JEV_MCP_CONFIG_HOME:-$HOME/.jev-mcp}"
 runtime="${JEV_MCP_RUNTIME_DIR:-$config_home/runtime}"
 repo_url="${JEV_MCP_REPO_URL:-https://github.com/Afloat16/jev-mcp.git}"
-git_ref="${JEV_MCP_GIT_REF:-main}"
+git_ref="${JEV_MCP_GIT_REF:-v0.5.0}"
 
 mkdir -p "$config_home"
 chmod 700 "$config_home" 2>/dev/null || true

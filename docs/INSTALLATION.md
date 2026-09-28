@@ -33,43 +33,43 @@ they are changed.
 ### Codex
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
 ```
 
 ### Claude Code
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- claude-code
 ```
 
 ### Kimi Code
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- kimi
 ```
 
 ### ZCode
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- zcode
 ```
 
 ### Cursor
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- cursor
 ```
 
 ### Gemini CLI
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- gemini
 ```
 
 ### All detected user-level clients
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash
 ```
 
 The `all` flow intentionally skips the project-scoped VS Code target. Run the
@@ -80,7 +80,7 @@ installer with `vscode` from the project that should receive `.vscode/mcp.json`.
 ### Codex
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.ps1))) -Target codex
 ```
 
 Replace `codex` with `claude-code`, `kimi`, `zcode`, `cursor`,
@@ -89,7 +89,7 @@ Replace `codex` with `claude-code`, `kimi`, `zcode`, `cursor`,
 Configure all detected user-level clients:
 
 ```powershell
-irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.ps1 | iex
 ```
 
 ## What the bootstrap does
@@ -135,7 +135,7 @@ If you intentionally manage `TYPESAFE_API_KEY` outside jev-mcp, skip local
 credential creation:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex --skip-key
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex --skip-key
 ```
 
 The MCP process must then inherit `TYPESAFE_API_KEY` from its environment.
@@ -145,10 +145,10 @@ The MCP process must then inherit `TYPESAFE_API_KEY` from its environment.
 Rerun the installer:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
 ```
 
-The managed runtime is fetched again and checked out to the configured ref.
+The managed runtime is fetched again and checked out to the configured ref. By default that ref is the stable `v0.5.0` tag.
 
 ## Uninstalling a client integration
 
@@ -194,6 +194,31 @@ The bootstrap recognizes:
 | `JEV_MCP_CONFIG_HOME` | Override `~/.jev-mcp` |
 | `JEV_MCP_RUNTIME_DIR` | Override the managed runtime checkout |
 | `JEV_MCP_REPO_URL` | Override the Git repository URL |
-| `JEV_MCP_GIT_REF` | Override the fetched branch/tag/ref |
+| `JEV_MCP_GIT_REF` | Override the fetched branch/tag/ref; default is `v0.5.0` |
 
 These are primarily useful for testing, forks, and pinned deployments.
+
+
+## Stable vs development channel
+
+The stable bootstrap script and installed runtime are both pinned to the same release tag:
+
+```text
+v0.5.0
+```
+
+To intentionally follow the development branch:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | env JEV_MCP_GIT_REF=main bash -s -- codex
+```
+
+For PowerShell:
+
+```powershell
+$env:JEV_MCP_GIT_REF = "main"
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
+
+Development-channel users should expect behavior to change before the next
+tagged release.

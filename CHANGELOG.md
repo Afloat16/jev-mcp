@@ -2,6 +2,19 @@
 
 All notable project changes are documented here.
 
+## Unreleased
+
+- Redesigned the English and Chinese project homepages around quick onboarding,
+  tool boundaries, privacy, and a clear host-model/Jev authority model.
+- Added quick-start, FAQ, troubleshooting, examples, support, governance,
+  roadmap, and CODEOWNERS documentation.
+- Added Markdown/repository consistency checks and strengthened secret/privacy
+  scanning to catch common credential patterns and accidental local home paths.
+- Upgraded first-party GitHub Actions used by CI/release workflows to current
+  major versions.
+- Preparing a committed npm lockfile so CI and contributors can use
+  reproducible dependency installs.
+
 ## 0.4.1 — Open-source hardening
 
 - Prepared the project for public GitHub release under the MIT license.

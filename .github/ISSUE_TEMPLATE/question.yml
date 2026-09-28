@@ -1,0 +1,44 @@
+name: Question / usage help
+description: Ask about jev-mcp setup or behavior with redacted information
+title: "[question] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read the Quick Start, FAQ, and Troubleshooting docs first.
+        Never paste API keys, tokens, private source code, customer data, or raw sensitive production logs.
+  - type: input
+    id: version
+    attributes:
+      label: jev-mcp version
+      placeholder: 0.4.1
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: MCP host/client
+      placeholder: Codex CLI, VS Code extension, or another stdio MCP host
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: Describe the workflow without secrets or proprietary data.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Include redacted commands/configuration and the output of npm run doctor when useful.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, local personal paths, customer data, and unrelated proprietary code.
+          required: true

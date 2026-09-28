@@ -41,7 +41,7 @@ EOF_ENV
   echo "Created local .env with restrictive permissions."
 fi
 
-npm install --no-audit --no-fund
+npm ci --no-audit --no-fund
 npm run check
 npm run doctor
 

@@ -63,6 +63,27 @@ if (!changelog.includes(`## ${pkg.version}`)) {
   errors.push(`CHANGELOG.md has no section for package version ${pkg.version}`);
 }
 
+const core = readFileSync(join(root, "src/core.ts"), "utf8");
+const coreVersion = core.match(/export const VERSION = "([^"]+)";/)?.[1];
+if (coreVersion !== pkg.version) {
+  errors.push(`src/core.ts VERSION (${coreVersion ?? "missing"}) does not match package.json (${pkg.version})`);
+}
+
+const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
+if (lock.version !== pkg.version || lock.packages?.[""]?.version !== pkg.version) {
+  errors.push(`package-lock.json version does not match package.json (${pkg.version})`);
+}
+
+const stableTag = `v${pkg.version}`;
+const unixInstaller = readFileSync(join(root, "scripts/install.sh"), "utf8");
+const windowsInstaller = readFileSync(join(root, "scripts/install.ps1"), "utf8");
+if (!unixInstaller.includes(`JEV_MCP_GIT_REF:-${stableTag}`)) {
+  errors.push(`scripts/install.sh default ref is not ${stableTag}`);
+}
+if (!windowsInstaller.includes(`"${stableTag}"`)) {
+  errors.push(`scripts/install.ps1 default ref is not ${stableTag}`);
+}
+
 for (const required of [
   "README.md",
   "README.zh-CN.md",

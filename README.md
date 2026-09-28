@@ -1,56 +1,83 @@
 # jev-mcp
 
+[![CI](https://github.com/Afloat16/jev-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Afloat16/jev-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933.svg)](https://nodejs.org/)
+[![MCP](https://img.shields.io/badge/MCP-stdio-6f42c1.svg)](https://modelcontextprotocol.io/)
+
 **Unofficial, community-maintained MCP server for TypeSafe AI Jev.**
 
-[简体中文](README.zh-CN.md)
+[简体中文](README.zh-CN.md) · [Quick start](docs/QUICKSTART.md) · [Examples](examples/README.md) · [Security](SECURITY.md) · [FAQ](docs/FAQ.md)
 
-`jev-mcp` exposes TypeSafe AI's Jev decision model to MCP hosts as four
-conservative, read-only decision tools. It is designed for workflows where a
-host model has already inspected the relevant context and wants a structured,
-probabilistic **second opinion** on a bounded decision.
+`jev-mcp` exposes TypeSafe AI's Jev decision model as four conservative,
+read-only MCP tools for **bounded probabilistic decisions**.
+
+It is intentionally designed as a **second-opinion layer**, not as a replacement
+for the active coding/reasoning model.
 
 > This project is not affiliated with, endorsed by, sponsored by, or an
 > official product of TypeSafe AI or OpenAI.
 
-## What it is — and what it is not
+## Why this exists
 
-Jev is useful for bounded decisions inside software: classify, route, score,
-or gate among predefined outcomes. It is **not** a drop-in replacement for a
-strong coding/reasoning model and this MCP does not claim to make that model
-"smarter."
+Strong coding agents are good at open-ended reasoning, code generation, debugging,
+and repository-wide analysis. Jev is useful for a different class of problem:
+small, explicit decisions that benefit from a structured probability signal.
 
-The default authority order is intentionally conservative:
+Typical examples:
+
+- retry vs rollback vs change strategy;
+- route to one of several known tools or subsystems;
+- estimate low / medium / high / critical change risk;
+- evaluate a yes/no gate against a threshold;
+- repeat the same bounded decision many times in an automated workflow.
+
+The design rule is simple:
 
 ```text
-Deterministic evidence
+deterministic evidence
         >
-Host-model repository-aware reasoning
+host-model repository-aware reasoning
         >
 Jev probabilistic advice
 ```
 
-If your normal workflow is simply "ask a strong coding model to solve one
-problem," TypeSafe's agent skill alone may be the simpler choice. This MCP is
-most useful when you specifically want a stable tool boundary, repeatable
-structured decisions, explicit probability thresholds, or agent/workflow
-orchestration.
+A Jev result is **advisory**. It is never proof, never ground truth, and never
+authorization for destructive or irreversible work.
 
-## Tools
+## Architecture
 
-| Tool | Purpose |
-| --- | --- |
-| `jev_decide` | Second opinion among 2–255 explicit alternatives |
-| `jev_route` | Route among explicit tools/subsystems/workflows |
-| `jev_risk_score` | Advisory low / medium / high / critical risk signal |
-| `jev_gate` | Atomic yes/no probability compared with a threshold |
+```mermaid
+flowchart LR
+    U[User] --> H[Active host model / MCP client]
+    E[Tests · compiler · runtime · static analysis] -->|highest-priority evidence| H
+    H -->|stdio MCP| M[jev-mcp]
+    M -->|HTTPS + Bearer token| J[TypeSafe AI Jev API]
+    J -->|probabilistic advisory result| M
+    M -->|structured tool result| H
+    H --> O[Final decision / action]
+```
 
-All tools are declared read-only. They make an outbound request to TypeSafe's
-hosted API; they do not edit files, execute shell commands, deploy anything, or
-switch the model selected by the user.
+The API key stays in the local process environment or a gitignored `.env` file.
+It is not placed in the MCP client configuration.
 
-## Conservative behavior
+**Privacy boundary:** anything placed in a tool's `state` is sent to the
+configured TypeSafe API endpoint. Send only the minimum necessary, preferably
+redacted state. See [Security and privacy model](docs/SECURITY-MODEL.md).
 
-Successful results include local metadata:
+## Tool surface
+
+| Tool | Use it for | Do not use it for |
+| --- | --- | --- |
+| `jev_decide` | Choosing among 2–255 explicit alternatives | Open-ended design or coding |
+| `jev_route` | Routing among known tools/subsystems/workflows | Switching the user's selected model |
+| `jev_risk_score` | Advisory low/medium/high/critical risk signal | Replacing tests or review |
+| `jev_gate` | Yes/no probability against a threshold | Authorizing destructive actions |
+
+All four tools are declared read-only. They do not edit files, execute shell
+commands, deploy infrastructure, or change the model selected by the user.
+
+Successful responses include local metadata similar to:
 
 ```json
 {
@@ -63,47 +90,39 @@ Successful results include local metadata:
 }
 ```
 
-This metadata is added by `jev-mcp`; it is not Jev model output. It is a
-behavioral guardrail reminding the host that a probability is not proof or
-authorization.
+That metadata is added by this MCP server; it is not Jev model output.
 
-## Requirements
+## 60-second install
+
+Requirements:
 
 - Node.js 20+
-- A TypeSafe API key / applicable TypeSafe access and credits
-- An MCP host that can launch a local stdio server
+- a TypeSafe API key / applicable TypeSafe access and credits
+- an MCP host that can launch a local stdio server
 
-The implementation uses the MCP TypeScript v2 server package and
-`serveStdio(factory)`. Diagnostics go to stderr because stdout is reserved for
-MCP protocol traffic.
-
-## Install
-
-Clone or extract the repository, then:
-
-### macOS / Linux
+Clone and set up:
 
 ```bash
+git clone https://github.com/Afloat16/jev-mcp.git
+cd jev-mcp
 ./setup.sh
 ```
 
-### Windows PowerShell
+Windows PowerShell:
 
 ```powershell
+git clone https://github.com/Afloat16/jev-mcp.git
+cd jev-mcp
 ./setup.ps1
 ```
 
-The setup script:
+The setup script reads the API key without echoing it, stores it only in the
+local gitignored `.env` file when needed, installs dependencies, and runs local
+checks.
 
-1. checks Node.js 20+;
-2. creates a local `.env` if one does not already exist;
-3. reads the API key without echoing it;
-4. installs dependencies;
-5. runs tests/type-check/build checks.
+For a more explicit walkthrough, see [Quick start](docs/QUICKSTART.md).
 
-The API key is never required in MCP client configuration.
-
-## Codex example
+## Codex configuration
 
 Add this to `~/.codex/config.toml` and replace the path:
 
@@ -113,29 +132,31 @@ command = "node"
 args = ["/ABSOLUTE/PATH/TO/jev-mcp/dist/index.js"]
 ```
 
-Then restart the MCP host / start a new session.
+Restart the MCP host or start a new session after configuration changes.
 
-For users who explicitly want Codex to apply the conservative decision policy
-across projects, an optional policy snippet is provided at:
+For users who explicitly want a conservative cross-project Codex policy, merge:
 
 ```text
 codex/AGENTS.jev-conservative.md
 ```
 
-Merge it into your own `~/.codex/AGENTS.md`; do not overwrite unrelated
-instructions.
+into your own `~/.codex/AGENTS.md`.
 
-## Other MCP hosts
+Do not copy unrelated existing instructions away.
 
-The server itself is not Codex-specific. Any host that supports launching a
-local stdio MCP server can use:
+## Which integration should I use?
 
-```text
-command: node
-args: [/absolute/path/to/jev-mcp/dist/index.js]
-```
+| Situation | Recommended approach |
+| --- | --- |
+| Everyday interactive coding | Strong host model alone, or TypeSafe's agent skill |
+| Learning Jev concepts / patterns | TypeSafe agent skill |
+| Stable callable decision tools | `jev-mcp` |
+| CI / agent orchestration | `jev-mcp` or a direct SDK integration |
+| High-volume application logic | Direct SDK/API integration is often the cleanest |
+| Need Jev to replace tests/compiler | Do not use Jev for that |
 
-Host-specific configuration syntax varies.
+The MCP is most useful when the **tool boundary itself** matters: repeatability,
+structured output, orchestration, explicit thresholds, or shared agent workflows.
 
 ## Configuration
 
@@ -149,26 +170,33 @@ Host-specific configuration syntax varies.
 
 Existing process environment variables override values loaded from `.env`.
 
-## Privacy warning
+### Secret-handling rules
 
-Anything placed in a Jev tool's `state` is sent to the configured TypeSafe API
-endpoint. Send only the minimum necessary, preferably redacted state. Do not
-send passwords, API keys, access tokens, private keys, customer data,
-regulated data, or unrelated proprietary source code.
+- Never commit `.env`.
+- Never put API keys in `README`, `AGENTS.md`, MCP config, examples, issues,
+  screenshots, or CI logs.
+- If a key is ever pasted into a shared surface, rotate/revoke it.
+- Run `npm run secrets:check` before publishing changes.
 
-This guidance is not a DLP boundary. See [Security and privacy model](docs/SECURITY-MODEL.md).
+The bundled scanner is a guardrail, not a complete DLP system.
 
-## Verify the installation
+## Examples
 
-Offline configuration check:
+See [examples/README.md](examples/README.md) for redacted examples covering:
+
+- ambiguous CI failure routing;
+- change-risk assessment;
+- retry / rollback / escalate decisions;
+- yes/no gates with explicit thresholds.
+
+All examples intentionally use synthetic data and placeholders.
+
+## Local verification
+
+No TypeSafe API call:
 
 ```bash
 npm run doctor
-```
-
-Full local checks (no TypeSafe API call):
-
-```bash
 npm run check
 ```
 
@@ -178,85 +206,60 @@ Interactive MCP inspection:
 npm run inspect
 ```
 
-A live tool call in MCP Inspector uses your TypeSafe account and may consume
-provider credits.
+A live tool invocation in MCP Inspector uses your own TypeSafe account and may
+consume provider credits.
 
-## Development
+## Project status
 
-```bash
-npm install
-npm run test
-npm run typecheck
-npm run build
-npm run secrets:check
-```
+| Item | Status |
+| --- | --- |
+| Interface | 4 read-only MCP tools |
+| Transport | local stdio |
+| Node.js | 20+ |
+| License | MIT |
+| npm publishing | intentionally disabled |
+| API dependency | TypeSafe-hosted System One API |
+| Stability | pre-1.0; behavior may evolve |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [Architecture](docs/ARCHITECTURE.md).
+The project follows semantic versioning in spirit, but while it remains below
+`1.0.0`, minor releases may refine tool schemas or behavior. Breaking changes
+should be documented in [CHANGELOG.md](CHANGELOG.md) and migration notes.
 
-## When the MCP is a good fit
+## Documentation
 
-Good candidates include:
+- [Quick start](docs/QUICKSTART.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Security and privacy model](docs/SECURITY-MODEL.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [FAQ](docs/FAQ.md)
+- [Roadmap](ROADMAP.md)
+- [Governance](GOVERNANCE.md)
+- [Support](SUPPORT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Releasing](docs/RELEASING.md)
+- [Changelog](CHANGELOG.md)
 
-- retry vs rollback vs change strategy after an ambiguous failure;
-- workflow routing where several explicit paths remain plausible;
-- a structured independent risk signal after the host model has inspected the
-  relevant change;
-- an atomic yes/no gate where a probability threshold affects orchestration;
-- repeated decision points in automated agent/CI pipelines.
+## Contributing
 
-Usually avoid Jev for:
-
-- open-ended coding, architecture, algorithm design, or explanation;
-- questions already settled by tests, compiler diagnostics, runtime evidence,
-  static analysis, or direct inspection;
-- trivial file edits or routine commands;
-- using a probability as sole authorization for destructive, irreversible,
-  production, security-sensitive, or data-loss-sensitive work.
-
-## TypeSafe agent skill vs this MCP
-
-They solve different problems:
-
-```text
-TypeSafe skill  -> teaches an agent Jev concepts and recommended patterns
-jev-mcp         -> provides a stable executable MCP tool boundary
-host model      -> remains the primary reasoner and final decision maker
-```
-
-For interactive coding, the skill alone can be simpler. For automation,
-repeatable tool contracts, or explicit workflow gates, an MCP boundary can be
-useful.
-
-## Open-source publishing
-
-This repository includes GitHub CI, release automation, Dependabot, issue/PR
-templates, a secret scanner, and one-command publishing scripts.
-
-After configuring Git and GitHub CLI:
+Focused issues and pull requests are welcome. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) first and run:
 
 ```bash
-./scripts/publish-github.sh jev-mcp public
+npm run check
 ```
 
-PowerShell:
+before opening a PR.
 
-```powershell
-./scripts/publish-github.ps1 -RepoName jev-mcp -Visibility public
-```
-
-See [Releasing](docs/RELEASING.md).
-
-## Security
-
-Read [SECURITY.md](SECURITY.md) before reporting vulnerabilities. Never paste
-credentials into public issues or logs.
+Security-sensitive reports should follow [SECURITY.md](SECURITY.md), not public
+issue comments.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
 
-The license covers this repository's code only. Third-party services and names
-remain subject to their own terms and rights. See [NOTICE](NOTICE).
+The license covers this repository's code only. Third-party services, names,
+APIs, trademarks, pricing, and availability remain subject to their respective
+owners. See [NOTICE](NOTICE).
 
 ## References
 

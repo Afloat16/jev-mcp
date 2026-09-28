@@ -259,8 +259,7 @@ consume provider credits.
 | API dependency | TypeSafe-hosted System One API |
 | Stability | pre-1.0; behavior may evolve |
 
-The project follows semantic versioning in spirit, but while it remains below
-`1.0.0`, minor releases may refine tool schemas or behavior. Breaking changes
+The project follows semantic versioning in spirit. Stable one-click installs are pinned to the current release tag (`v0.5.0`) rather than `main`; users who intentionally want development builds can set `JEV_MCP_GIT_REF=main`. While the project remains below `1.0.0`, minor releases may refine tool schemas or behavior. Breaking changes
 should be documented in [CHANGELOG.md](CHANGELOG.md) and migration notes.
 
 ## Documentation

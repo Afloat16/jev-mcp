@@ -1,0 +1,6 @@
+# Example only. Do not put API keys in this file.
+# Replace this path with the absolute path to your local checkout.
+
+[mcp_servers.jev]
+command = "node"
+args = ["/ABSOLUTE/PATH/TO/jev-mcp/dist/index.js"]

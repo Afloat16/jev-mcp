@@ -7,7 +7,7 @@
 
 **非官方、社区维护的 TypeSafe AI Jev MCP Server。**
 
-[English](README.md) · [快速开始](docs/QUICKSTART.md) · [示例](examples/README.md) · [安全说明](SECURITY.md) · [FAQ](docs/FAQ.md)
+[English](README.md) · [一键安装](docs/INSTALLATION.md) · [快速开始](docs/QUICKSTART.md) · [示例](examples/README.md) · [安全说明](SECURITY.md) · [FAQ](docs/FAQ.md)
 
 `jev-mcp` 将 TypeSafe AI 的 Jev 决策模型暴露为 4 个保守、只读的 MCP 工具，
 用于**边界明确的概率决策**。
@@ -72,15 +72,49 @@ API key 只放在本地进程环境变量或被 Git 忽略的 `.env` 文件中�
 
 四个工具均声明为只读，不会修改文件、执行 shell、部署基础设施，也不会切换你选择的模型。
 
-## 60 秒安装
+## 一条命令安装
 
-要求：
+无需 clone 仓库，也无需手工修改 MCP JSON/TOML：
 
-- Node.js 20+
-- TypeSafe API key / 可用的 TypeSafe 账户与额度
-- 支持启动本地 stdio MCP server 的客户端
+```bash
+# Codex
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
 
-macOS / Linux：
+# Claude Code
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install claude-code
+
+# Kimi Code
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install kimi
+
+# ZCode
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install zcode
+
+# Cursor
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install cursor
+
+# Gemini CLI
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install gemini
+
+# 自动配置检测到的用户级客户端
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+```
+
+第一次安装时会在终端中**隐藏输入** TypeSafe API key，只保存到本机
+`~/.jev-mcp/.env`，不会把 key 写进 Codex、Claude Code、Cursor、Kimi、
+ZCode、Gemini 等 MCP 配置。
+
+修改已有 JSON 配置前会保留 `.jev-mcp.bak` 备份，并尽量保留其他设置。
+
+目前支持 Codex、Claude Code、Kimi Code、ZCode、Cursor、Gemini CLI、
+Windsurf 兼容配置、通用 `.agents/mcp.json`，以及项目级 VS Code/Copilot
+Agent 配置。
+
+完整命令、卸载方式和 Cursor deeplink 见
+[安装说明](docs/INSTALLATION.md)。
+
+### 从源码安装
+
+适合贡献者或希望固定本地 checkout 的用户：
 
 ```bash
 git clone https://github.com/Afloat16/jev-mcp.git
@@ -95,10 +129,6 @@ git clone https://github.com/Afloat16/jev-mcp.git
 cd jev-mcp
 ./setup.ps1
 ```
-
-安装脚本会静默读取 API key，需要时写入本地 gitignored `.env`，安装依赖并运行本地检查。
-
-更详细步骤见 [快速开始](docs/QUICKSTART.md)。
 
 ## Codex 配置
 
@@ -188,6 +218,8 @@ npm run inspect
 
 ## 文档
 
+- [一键安装](docs/INSTALLATION.md)
+- [支持的 AI 客户端](docs/CLIENTS.md)
 - [快速开始](docs/QUICKSTART.md)
 - [架构](docs/ARCHITECTURE.md)
 - [安全与隐私模型](docs/SECURITY-MODEL.md)

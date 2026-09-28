@@ -1,1 +1,8 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Afloat16/jev-mcp/security/policy
+    about: Read the security policy before reporting. Do not post sensitive details in a public issue.
+  - name: TypeSafe AI documentation
+    url: https://docs.typesafe.ai/
+    about: Provider API, account, billing, and service documentation belongs with TypeSafe AI.

@@ -22,19 +22,25 @@
     "typesafe-ai",
     "jev",
     "codex",
-    "decision-model"
+    "decision-model",
+    "claude-code",
+    "kimi",
+    "zcode",
+    "cursor",
+    "gemini"
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test test/core.test.ts",
+    "test": "node --import tsx --test test/core.test.ts test/installer.test.ts",
     "inspect": "npx @modelcontextprotocol/inspector npx tsx src/index.ts",
     "doctor": "node scripts/doctor.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "secrets:check": "node scripts/check-secrets.mjs",
-    "check": "npm run secrets:check && npm run docs:check && npm run test && npm run typecheck && npm run build"
+    "check": "npm run secrets:check && npm run docs:check && npm run test && npm run typecheck && npm run build",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
@@ -44,5 +50,8 @@
     "@types/node": "^24.10.1",
     "tsx": "^4.21.0",
     "typescript": "^5.8.3"
+  },
+  "bin": {
+    "jev-mcp": "dist/cli.js"
   }
 }

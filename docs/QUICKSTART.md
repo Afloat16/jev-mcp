@@ -1,14 +1,14 @@
 # Quick start
 
-This guide gets a local `jev-mcp` server running without putting a TypeSafe
-credential in your MCP client configuration.
+The fastest path is the one-command installer. It downloads the package from
+GitHub through npm, configures the selected MCP client, and stores the TypeSafe
+credential outside the client config.
 
 ## 1. Requirements
 
-- Node.js 20+
-- Git
+- Node.js 20+ with npm/npx
 - a TypeSafe API key / applicable TypeSafe access and credits
-- an MCP host that can launch a local stdio server
+- the target AI client
 
 Check Node:
 
@@ -16,78 +16,64 @@ Check Node:
 node --version
 ```
 
-## 2. Clone
+## 2. Install into your client
+
+Example for Codex:
 
 ```bash
-git clone https://github.com/Afloat16/jev-mcp.git
-cd jev-mcp
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
 ```
 
-## 3. Configure the local credential
+Other target IDs:
 
-macOS / Linux:
+```text
+claude-code
+kimi
+zcode
+cursor
+gemini
+windsurf
+agents
+vscode
+```
+
+Or configure every detected user-level client:
 
 ```bash
-./setup.sh
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
 ```
 
-Windows PowerShell:
+The first install asks for the TypeSafe API key using hidden terminal input.
+It is stored in:
 
-```powershell
-./setup.ps1
+```text
+~/.jev-mcp/.env
 ```
 
-The setup script reads the key without echoing it and, when needed, stores it
-in a local `.env` file that is ignored by Git.
+The key is not placed in the target client's MCP configuration.
 
-Do not paste a real key into README files, `AGENTS.md`, MCP configuration,
-issues, screenshots, or shell history.
+See [INSTALLATION.md](INSTALLATION.md) for platform-specific details.
 
-You may instead provide `TYPESAFE_API_KEY` through your own process
-environment. Existing process variables override values in `.env`.
+## 3. Restart the AI client
 
-## 4. Verify locally
+MCP tool discovery normally happens when a new client/session starts. Restart
+the client or open a new session after installation.
 
-These checks do not call the TypeSafe API:
+## 4. Start with a safe synthetic test
 
-```bash
-npm run doctor
-npm run check
+Ask the host model to get a second opinion on a bounded decision such as:
+
+```text
+retry / rollback / escalate
 ```
 
-Expected result: configuration checks, tests, type checking, and build succeed.
-
-## 5. Configure Codex
-
-Add this to `~/.codex/config.toml` and replace the path:
-
-```toml
-[mcp_servers.jev]
-command = "node"
-args = ["/ABSOLUTE/PATH/TO/jev-mcp/dist/index.js"]
-```
-
-Restart Codex / start a new session.
-
-Other MCP clients can use the same executable through their local stdio-server
-configuration.
-
-## 6. Start with a safe test
-
-Use a synthetic decision first. For example, ask the host to obtain a second
-opinion between:
-
-- retry once;
-- roll back;
-- escalate for review.
-
-Do not use production data or credentials as test input.
+Do not use production secrets or customer data as test input.
 
 Examples are available in [../examples/README.md](../examples/README.md).
 
-## 7. Understand the trust model
+## 5. Trust model
 
-Jev is advisory. The intended priority order is:
+Jev remains advisory:
 
 ```text
 deterministic evidence
@@ -97,6 +83,18 @@ host-model repository-aware reasoning
 Jev probabilistic advice
 ```
 
-Anything placed in `state` is sent to the configured TypeSafe API endpoint.
-Read [SECURITY-MODEL.md](SECURITY-MODEL.md) before using the tool with sensitive
-projects.
+Anything placed in Jev `state` is sent to the configured TypeSafe API
+endpoint. Read [SECURITY-MODEL.md](SECURITY-MODEL.md) before using the tool with
+sensitive projects.
+
+## Source checkout alternative
+
+If you are contributing to the project or want a pinned local checkout:
+
+```bash
+git clone https://github.com/Afloat16/jev-mcp.git
+cd jev-mcp
+./setup.sh
+```
+
+On Windows PowerShell use `./setup.ps1`.

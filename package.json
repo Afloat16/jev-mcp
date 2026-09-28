@@ -1,0 +1,39 @@
+{
+  "name": "jev-mcp",
+  "version": "0.4.1",
+  "private": true,
+  "description": "Unofficial conservative MCP server exposing TypeSafe AI Jev as a secondary probabilistic decision signal.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "typesafe-ai",
+    "jev",
+    "codex",
+    "decision-model"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test test/core.test.ts",
+    "inspect": "npx @modelcontextprotocol/inspector npx tsx src/index.ts",
+    "doctor": "node scripts/doctor.mjs",
+    "secrets:check": "node scripts/check-secrets.mjs",
+    "check": "npm run secrets:check && npm run test && npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3"
+  }
+}

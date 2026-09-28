@@ -38,7 +38,7 @@ jobs:
         run: npm run check
 
       - name: Upload generated lockfile for repository hardening
-        if: matrix.node == '20.x'
+        if: always() && matrix.node == '20.x'
         uses: actions/upload-artifact@v7
         with:
           name: package-lock-node20

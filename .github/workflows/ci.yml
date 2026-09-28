@@ -110,8 +110,12 @@ jobs:
           if (-not (Test-Path $cli)) { throw "Managed jev-mcp runtime was not built." }
 
           $text = Get-Content $config -Raw
-          if ($text -notmatch '"jev"') { throw "Jev MCP entry missing." }
-          if ($text -notmatch 'dist[\\\\/]cli\.js') { throw "Durable runtime path missing." }
+          $parsed = $text | ConvertFrom-Json
+          $entry = $parsed.mcpServers.jev
+          if ($null -eq $entry) { throw "Jev MCP entry missing." }
+          if ($entry.args[0] -ne $cli) {
+            throw "Durable runtime path mismatch: $($entry.args[0])"
+          }
           if ($text -match 'TYPESAFE_API_KEY') { throw "Credential leaked into client config." }
           if (Test-Path (Join-Path $env:JEV_MCP_CONFIG_HOME ".env")) {
             throw "Skip-key smoke test unexpectedly created a credential file."

@@ -34,7 +34,7 @@ TYPESAFE_TIMEOUT_MS=15000
   Write-Host "Created local .env."
 }
 
-& npm install --no-audit --no-fund
+& npm ci --no-audit --no-fund
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & npm run check
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

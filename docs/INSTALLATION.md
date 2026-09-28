@@ -33,7 +33,7 @@ they are changed.
 ### Codex
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | env JEV_MCP_GIT_REF=main bash -s -- codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
 ```
 
 ### Claude Code
@@ -210,7 +210,7 @@ v0.5.0
 To intentionally follow the development branch:
 
 ```bash
-JEV_MCP_GIT_REF=main curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/v0.5.0/scripts/install.sh | bash -s -- codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | env JEV_MCP_GIT_REF=main bash -s -- codex
 ```
 
 For PowerShell:

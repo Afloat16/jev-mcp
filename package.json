@@ -40,7 +40,6 @@
     "docs:check": "node scripts/check-docs.mjs",
     "secrets:check": "node scripts/check-secrets.mjs",
     "check": "npm run secrets:check && npm run docs:check && npm run test && npm run typecheck && npm run build && npm run cli:smoke",
-    "prepare": "npm run build",
     "cli:smoke": "node dist/cli.js targets"
   },
   "dependencies": {

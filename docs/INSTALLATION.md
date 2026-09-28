@@ -148,7 +148,7 @@ Rerun the installer:
 curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 ```
 
-The managed runtime is fetched again and checked out to the configured ref.
+The managed runtime is fetched again and checked out to the configured ref. By default that ref is the stable `v0.5.0` tag.
 
 ## Uninstalling a client integration
 
@@ -194,6 +194,32 @@ The bootstrap recognizes:
 | `JEV_MCP_CONFIG_HOME` | Override `~/.jev-mcp` |
 | `JEV_MCP_RUNTIME_DIR` | Override the managed runtime checkout |
 | `JEV_MCP_REPO_URL` | Override the Git repository URL |
-| `JEV_MCP_GIT_REF` | Override the fetched branch/tag/ref |
+| `JEV_MCP_GIT_REF` | Override the fetched branch/tag/ref; default is `v0.5.0` |
 
 These are primarily useful for testing, forks, and pinned deployments.
+
+
+## Stable vs development channel
+
+The bootstrap script itself is downloaded from `main`, but the installed
+runtime defaults to the stable release tag:
+
+```text
+v0.5.0
+```
+
+To intentionally follow the development branch:
+
+```bash
+JEV_MCP_GIT_REF=main curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+```
+
+For PowerShell:
+
+```powershell
+$env:JEV_MCP_GIT_REF = "main"
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
+
+Development-channel users should expect behavior to change before the next
+tagged release.

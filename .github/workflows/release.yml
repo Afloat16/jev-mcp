@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+      - name: Build source archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          mkdir -p release-assets
+          git archive --format=zip --prefix="jev-mcp-${version}/" \
+            --output="release-assets/jev-mcp-${version}.zip" "$GITHUB_REF_NAME"
+          git archive --format=tar.gz --prefix="jev-mcp-${version}/" \
+            --output="release-assets/jev-mcp-${version}.tar.gz" "$GITHUB_REF_NAME"
+          sha256sum release-assets/jev-mcp-* > release-assets/SHA256SUMS.txt
+          awk -v version="$version" '
+            $0 ~ "^## " version { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-assets/RELEASE_NOTES.md
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            release-assets/jev-mcp-*.zip \
+            release-assets/jev-mcp-*.tar.gz \
+            release-assets/SHA256SUMS.txt \
+            --verify-tag \
+            --notes-file release-assets/RELEASE_NOTES.md \
+            --title "$GITHUB_REF_NAME"

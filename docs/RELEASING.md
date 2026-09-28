@@ -4,50 +4,69 @@ The repository is intentionally `private: true` in `package.json` to prevent
 accidental npm publication. Releases are GitHub source releases, not npm
 packages.
 
-## Automated path
+## Release model
 
-After Git and GitHub CLI are configured:
+Normal releases are now driven by the repository itself:
+
+1. prepare a release PR that updates `package.json`, `src/core.ts`,
+   `CHANGELOG.md`, and any stable installer defaults;
+2. merge only after CI passes;
+3. the post-CI auto-release workflow sees an untagged version on `main`;
+4. it creates the annotated `vX.Y.Z` tag and GitHub Release assets.
+
+No maintainer PAT or TypeSafe credential is required by the release workflow.
+
+The release contains:
+
+```text
+jev-mcp-X.Y.Z.zip
+jev-mcp-X.Y.Z.tar.gz
+SHA256SUMS.txt
+```
+
+Release notes are extracted from the matching `CHANGELOG.md` section.
+
+## Manual fallback
+
+If automatic release is intentionally disabled:
 
 ```bash
-./scripts/publish-github.sh jev-mcp public
+git checkout main
+git pull
+npm ci
+npm run check
+git tag -a v0.5.0 -m "jev-mcp v0.5.0"
+git push origin v0.5.0
 ```
 
-or on PowerShell:
+The tag-triggered release workflow validates the tag against
+`package.json` and creates the same assets.
 
-```powershell
-./scripts/publish-github.ps1 -RepoName jev-mcp -Visibility public
+## Stable installer channel
+
+The public bootstrap script is fetched from `main`, but the installed runtime
+must default to the latest stable version tag. For v0.5.0:
+
+```text
+JEV_MCP_GIT_REF default = v0.5.0
 ```
 
-The script checks secrets and the build, creates/pushes the repository if
-needed, then pushes the version tag. The tag triggers the GitHub release
-workflow, which validates the project again and publishes source archives.
+Development users can opt into:
 
-## Manual release path
+```text
+JEV_MCP_GIT_REF=main
+```
 
-1. Update `package.json` and `CHANGELOG.md`.
-2. Run `npm run check`.
-3. Commit the changes.
-4. Create an annotated tag, e.g. `git tag -a v0.4.1 -m "jev-mcp v0.4.1"`.
-5. Push `main` and the tag.
-6. The GitHub Actions release workflow creates the GitHub Release.
+When cutting the next release, update the default stable ref in both
+`scripts/install.sh` and `scripts/install.ps1`.
 
-## Manual prerequisites only
+## Release checklist
 
-Before the automated publishing script can act on your GitHub account, you must
-personally complete the account-bound steps:
+Before merging a version PR:
 
-1. Install GitHub CLI (`gh`) if it is not already installed.
-2. Authenticate it with `gh auth login` (do not send access tokens to anyone).
-3. Configure your own Git author identity if needed:
-   `git config --global user.name ...` and `git config --global user.email ...`.
-4. Decide which GitHub owner/repository name should receive the project. Pass
-   `owner/jev-mcp` to the script if publishing under an organization.
-
-The script handles dependency installation, `package-lock.json`, staging,
-secret checks, tests/build, initial commit, repository creation, push, tag,
-repository topics/settings, security-scanning enablement where permitted, and
-release triggering.
-
-After publication, adding a branch ruleset that requires CI before merging is
-recommended but intentionally left manual because organization policies and
-merge preferences vary.
+- version in `package.json` matches `src/core.ts`;
+- `CHANGELOG.md` contains `## X.Y.Z`;
+- Linux and Windows bootstrap smoke tests pass;
+- Node 20/22/24 checks pass;
+- stable installer default points at `vX.Y.Z`;
+- no credential or user-specific path appears in the diff.

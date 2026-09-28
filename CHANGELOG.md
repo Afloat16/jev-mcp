@@ -12,8 +12,10 @@ All notable project changes are documented here.
   scanning to catch common credential patterns and accidental local home paths.
 - Upgraded first-party GitHub Actions used by CI/release workflows to current
   major versions.
-- Preparing a committed npm lockfile so CI and contributors can use
-  reproducible dependency installs.
+- Added a CI-generated npm lockfile and switched CI, release, setup, and
+  publishing flows to reproducible `npm ci` installs.
+- Added safer issue routing and a structured usage-question template to reduce
+  accidental disclosure of secrets or sensitive project data.
 
 ## 0.4.1 — Open-source hardening
 

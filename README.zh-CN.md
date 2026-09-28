@@ -223,7 +223,7 @@ npm run inspect
 | License | MIT |
 | npm 发布 | 主动禁用 |
 | 外部依赖 | TypeSafe-hosted System One API |
-| 稳定性 | pre-1.0，行为仍可能演进 |
+| 稳定性 | pre-1.0；一键安装默认固定到 `v0.5.0` 稳定 tag |
 
 ## 文档
 

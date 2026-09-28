@@ -74,42 +74,51 @@ API key 只放在本地进程环境变量或被 Git 忽略的 `.env` 文件中�
 
 ## 一条命令安装
 
-无需 clone 仓库，也无需手工修改 MCP JSON/TOML：
+无需手工修改 MCP JSON/TOML。安装器会把共享运行时安装到
+`~/.jev-mcp/runtime`，隐藏输入 TypeSafe key，并自动配置目标 AI。
+
+macOS / Linux：
 
 ```bash
 # Codex
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 
 # Claude Code
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install claude-code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
 
 # Kimi Code
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install kimi
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
 
 # ZCode
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install zcode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
 
 # Cursor
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
 
 # Gemini CLI
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install gemini
-
-# 自动配置检测到的用户级客户端
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
 ```
 
-第一次安装时会在终端中**隐藏输入** TypeSafe API key，只保存到本机
-`~/.jev-mcp/.env`，不会把 key 写进 Codex、Claude Code、Cursor、Kimi、
-ZCode、Gemini 等 MCP 配置。
+Windows PowerShell（把 `codex` 换成其他目标即可）：
 
-修改已有 JSON 配置前会保留 `.jev-mcp.bak` 备份，并尽量保留其他设置。
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
 
-目前支持 Codex、Claude Code、Kimi Code、ZCode、Cursor、Gemini CLI、
-Windsurf 兼容配置、通用 `.agents/mcp.json`，以及项目级 VS Code/Copilot
-Agent 配置。
+自动配置检测到的用户级客户端：
 
-完整命令、卸载方式和 Cursor deeplink 见
+```bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+```
+
+TypeSafe key 只保存在本机 `~/.jev-mcp/.env`，不会写入各 AI 的 MCP 配置；
+修改已有 JSON 配置前会自动保存备份。
+
+当前支持 Codex、Claude Code、Kimi Code、ZCode、Cursor、Gemini CLI、
+Windsurf 兼容配置、通用 `.agents/mcp.json`，以及项目级
+VS Code/Copilot Agent 配置。
+
+完整 Windows 命令、更新、卸载、`--skip-key` 和高级参数见
 [安装说明](docs/INSTALLATION.md)。
 
 ### 从源码安装

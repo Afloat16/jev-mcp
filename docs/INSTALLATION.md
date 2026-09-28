@@ -1,201 +1,199 @@
 # Installation
 
-`jev-mcp` can be installed into supported AI coding clients without cloning
-this repository or manually editing MCP configuration.
+`jev-mcp` provides a bootstrap installer for major MCP-capable AI coding
+clients. Users do not need to clone this repository or manually edit JSON/TOML.
 
 ## Prerequisites
 
-- Node.js 20+ with `npm` / `npx`
+- Node.js 20+
+- Git
+- npm (bundled with Node.js)
 - a TypeSafe API key / applicable TypeSafe access and credits
-- the target AI client installed when the installer uses that client's CLI
 
-The first install prompts for the TypeSafe API key with hidden terminal input
-and stores it at:
+The runtime is installed to:
+
+```text
+~/.jev-mcp/runtime
+```
+
+The TypeSafe credential is stored separately at:
 
 ```text
 ~/.jev-mcp/.env
 ```
 
-On POSIX systems the installer attempts to use mode `0600`. The key is **not**
-written into Codex, Claude Code, Cursor, Kimi, ZCode, Gemini, Windsurf, VS Code,
-or generic MCP configuration.
+The key is entered with hidden terminal input and is **not** written into the
+AI client's MCP configuration.
 
-Existing JSON configuration files are preserved and backed up to a sibling
-`.jev-mcp.bak` file before modification.
+Existing JSON client configs are backed up to a sibling `.jev-mcp.bak` before
+they are changed.
 
-## One-command installation
-
-Use the same command on macOS, Linux, and Windows PowerShell:
+## macOS / Linux
 
 ### Codex
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 ```
-
-The installer uses `codex mcp add`. Codex CLI and the Codex IDE extension
-share MCP configuration, so this configures both surfaces.
 
 ### Claude Code
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install claude-code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
 ```
-
-The server is added at Claude Code user scope.
 
 ### Kimi Code
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install kimi
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
 ```
-
-This updates `~/.kimi-code/mcp.json` and enables deferred MCP loading so the
-tools can be loaded on demand.
 
 ### ZCode
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install zcode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
 ```
-
-This updates ZCode's user-level `~/.zcode/cli/config.json`.
 
 ### Cursor
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
 ```
-
-This updates `~/.cursor/mcp.json`.
-
-If you prefer Cursor's official deeplink flow, configure the local credential
-once:
-
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp setup
-```
-
-Then use:
-
-[Add Jev MCP to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=jev&config=eyJqZXYiOnsidHlwZSI6InN0ZGlvIiwiY29tbWFuZCI6Im5weCIsImFyZ3MiOlsiLXkiLCItLXBhY2thZ2U9Z2l0aHViOkFmbG9hdDE2L2pldi1tY3AjbWFpbiIsImpldi1tY3AiLCJzZXJ2ZXIiXX19)
 
 ### Gemini CLI
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install gemini
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
 ```
 
-This updates `~/.gemini/settings.json`.
-
-### Windsurf / Devin Desktop compatible config
+### All detected user-level clients
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install windsurf
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
 ```
 
-This writes the MCP entry to the Windsurf-compatible user configuration at
-`~/.codeium/windsurf/mcp_config.json`. Existing installations that retain
-this configuration layout can use the server after restart.
+The `all` flow intentionally skips the project-scoped VS Code target. Run the
+installer with `vscode` from the project that should receive `.vscode/mcp.json`.
 
-### Generic `.agents`
+## Windows PowerShell
 
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install agents
+### Codex
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
 ```
 
-This updates `~/.agents/mcp.json`. ZCode can use/import this industry-style
-configuration when its native MCP configuration does not override it.
+Replace `codex` with `claude-code`, `kimi`, `zcode`, `cursor`,
+`gemini`, `windsurf`, `agents`, or `vscode`.
 
-### VS Code / GitHub Copilot Agent mode
+Configure all detected user-level clients:
 
-Run from the project that should receive the MCP server:
-
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install vscode
+```powershell
+irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1 | iex
 ```
 
-This updates the project-level `.vscode/mcp.json`.
+## What the bootstrap does
 
-## Configure every detected client
+1. verifies Git, Node.js 20+, and npm;
+2. installs or updates a managed checkout at `~/.jev-mcp/runtime`;
+3. performs a locked `npm ci` install and TypeScript build;
+4. prompts for the TypeSafe key with hidden input when no local key exists;
+5. stores that key only in `~/.jev-mcp/.env`;
+6. configures the selected AI client to launch the local runtime directly.
 
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+Client configs therefore use a durable command equivalent to:
+
+```text
+<absolute node executable> ~/.jev-mcp/runtime/dist/cli.js server
 ```
 
-`all` configures detected user-level clients and the generic `.agents`
-configuration. It intentionally skips the VS Code target because that target is
-workspace-scoped; run `install vscode` explicitly from the desired project.
+They do not depend on npm/GitHub every time the AI starts.
 
-## Credential-only setup
+Rerunning the same bootstrap command updates the managed runtime and refreshes
+the client configuration.
+
+## Supported targets
+
+| Client | Target | Configuration method |
+| --- | --- | --- |
+| OpenAI Codex CLI + IDE extension | `codex` | `codex mcp add` |
+| Anthropic Claude Code | `claude-code` | `claude mcp add --scope user` |
+| Kimi Code | `kimi` | `~/.kimi-code/mcp.json` |
+| ZCode | `zcode` | `~/.zcode/cli/config.json` |
+| Cursor | `cursor` | `~/.cursor/mcp.json` |
+| Gemini CLI | `gemini` | `~/.gemini/settings.json` |
+| Windsurf-compatible MCP config | `windsurf` | `~/.codeium/windsurf/mcp_config.json` |
+| Generic agents config | `agents` | `~/.agents/mcp.json` |
+| VS Code / Copilot Agent workspace | `vscode` | `.vscode/mcp.json` |
+
+Kimi is configured with deferred MCP loading so Jev tools can be loaded on
+demand.
+
+## Environment-managed credentials
+
+If you intentionally manage `TYPESAFE_API_KEY` outside jev-mcp, skip local
+credential creation:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp setup
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex --skip-key
 ```
 
-Rotate/replace the locally stored key:
+The MCP process must then inherit `TYPESAFE_API_KEY` from its environment.
+
+## Updating
+
+Rerun the installer:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp setup --reset
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 ```
 
-If `TYPESAFE_API_KEY` is already present in the environment, the installer can
-persist that value locally without printing it.
+The managed runtime is fetched again and checked out to the configured ref.
 
-For an environment-managed credential where you do not want the installer to
-create `~/.jev-mcp/.env`, use:
+## Uninstalling a client integration
 
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex --skip-key
-```
-
-The MCP subprocess must then receive `TYPESAFE_API_KEY` through its environment.
-
-## Uninstall
-
-Remove one client integration:
+After installation:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp uninstall cursor
+node ~/.jev-mcp/runtime/dist/cli.js uninstall cursor
 ```
 
 Remove all supported user-level integrations:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp uninstall all
+node ~/.jev-mcp/runtime/dist/cli.js uninstall all
 ```
 
-Uninstalling client configuration intentionally leaves the locally stored
-TypeSafe credential untouched. Remove it separately:
+Removing client configuration does not delete the TypeSafe credential. To
+remove the locally stored credential:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp forget-key
+node ~/.jev-mcp/runtime/dist/cli.js forget-key
 ```
 
-## How the launcher works
+On Windows use the corresponding path under `$HOME\.jev-mcp\runtime`.
 
-Installed clients start Jev through npm's remote-package execution:
+## Security notes
 
-```text
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp server
-```
+Downloading and executing a remote install script is convenient but carries
+normal supply-chain risk. Users who prefer to inspect everything first should
+download the script or clone the repository, review it, and run it locally.
 
-npm supports GitHub repositories as package specs. The repository exposes a
-`jev-mcp` binary and builds its TypeScript during Git-based package
-installation.
+The installer never makes a live Jev API call. Live calls only happen after an
+MCP client invokes a Jev tool.
 
-The repository currently tracks `main` because the project remains pre-1.0.
-A future stable release can replace `#main` with a version tag.
+Anything later placed in a Jev tool's `state` is sent to the configured
+TypeSafe endpoint. See [SECURITY-MODEL.md](SECURITY-MODEL.md).
 
-## Official client behavior referenced by the installer
+## Advanced installer controls
 
-- Codex supports local stdio MCP servers through `codex mcp add ... -- <command>`.
-- Claude Code supports local stdio servers and user scope through `claude mcp add`.
-- Kimi Code uses user-level `~/.kimi-code/mcp.json` and supports deferred tools.
-- ZCode uses `~/.zcode/cli/config.json` and can import MCP servers from Codex,
-  Claude Code, OpenCode, and generic `.agents`.
-- Cursor uses `~/.cursor/mcp.json` and supports MCP install deeplinks.
-- Gemini CLI uses `~/.gemini/settings.json` and its `mcpServers` object.
+The bootstrap recognizes:
 
-Because client configuration formats can evolve, the installer is covered by CI
-and should be updated when upstream client documentation changes.
+| Variable | Purpose |
+| --- | --- |
+| `JEV_MCP_CONFIG_HOME` | Override `~/.jev-mcp` |
+| `JEV_MCP_RUNTIME_DIR` | Override the managed runtime checkout |
+| `JEV_MCP_REPO_URL` | Override the Git repository URL |
+| `JEV_MCP_GIT_REF` | Override the fetched branch/tag/ref |
+
+These are primarily useful for testing, forks, and pinned deployments.

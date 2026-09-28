@@ -4,9 +4,13 @@ All notable project changes are documented here.
 
 ## Unreleased
 
+## 0.5.0 — Multi-client one-click installation
+
 - Added cross-platform bootstrap installers that create/update a durable local
   runtime at `~/.jev-mcp/runtime` instead of relying on npm Git-package
   execution at every MCP startup.
+- Stable bootstrap installs now default to the `v0.5.0` tag; advanced users can
+  set `JEV_MCP_GIT_REF=main` to follow the development channel.
 - Added one-command setup for Codex, Claude Code, Kimi Code, ZCode, Cursor,
   Gemini CLI, Windsurf-compatible config, generic `.agents`, and
   project-scoped VS Code MCP configuration.

@@ -181,9 +181,9 @@ MCP 真正有价值的地方是**稳定工具边界**：结构化输出、可重
 | `JEV_MODEL` | 否 | `jev-latest` | Jev 模型覆盖 |
 | `TYPESAFE_BASE_URL` | 否 | `https://api.typesafe.ai` | API 地址 |
 | `TYPESAFE_TIMEOUT_MS` | 否 | `15000` | 250–120000 ms 请求超时 |
-| `JEV_ENV_FILE` | 否 | 项目 `.env` | 其他 env 文件路径 |
+| `JEV_ENV_FILE` | 否 | 自动 | 显式 env 文件；否则先项目 `.env`，再 `~/.jev-mcp/.env` |
 
-进程环境变量优先于 `.env` 中的同名值。
+进程环境变量优先于文件中的同名值。未指定 `JEV_ENV_FILE` 时，会先读取项目 `.env`，再读取安装器管理的 `~/.jev-mcp/.env`。
 
 ### 密钥规则
 

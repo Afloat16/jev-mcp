@@ -63,8 +63,13 @@ for (const file of files) {
   for (const match of text.matchAll(/TYPESAFE_API_KEY\s*=\s*([^\s"'\x60]+)/g)) {
     const value = match[1];
     const safePlaceholders = new Set(["replace_me", "YOUR_TYPESAFE_API_KEY", "<your-key>"]);
-    if (value && !safePlaceholders.has(value)) {
-      findings.push(`${file}: non-placeholder TYPESAFE_API_KEY assignment`);
+    const isVariableReference =
+      value.startsWith("$") ||
+      value.startsWith("%") ||
+      value.startsWith("process.env.") ||
+      value.startsWith("env:");
+    if (value && !safePlaceholders.has(value) && !isVariableReference) {
+      findings.push(`${file}: non-placeholder literal TYPESAFE_API_KEY assignment`);
     }
   }
 }

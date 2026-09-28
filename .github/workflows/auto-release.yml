@@ -39,7 +39,7 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
-      - name: Skip existing release
+      - name: Inspect existing tag and release
         id: existing
         env:
           GH_TOKEN: ${{ github.token }}
@@ -47,14 +47,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if gh release view "$TAG" >/dev/null 2>&1 ||              git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release_exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "release_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Verify release metadata
-        if: steps.existing.outputs.exists == 'false'
+        if: steps.existing.outputs.release_exists == 'false'
         env:
           VERSION: ${{ steps.version.outputs.version }}
         shell: bash
@@ -66,15 +73,17 @@ jobs:
           grep -q "\"v${VERSION}\"" scripts/install.ps1
 
       - name: Install locked dependencies
-        if: steps.existing.outputs.exists == 'false'
+        if: steps.existing.outputs.release_exists == 'false'
         run: npm ci --no-audit --no-fund
 
       - name: Re-run repository checks
-        if: steps.existing.outputs.exists == 'false'
+        if: steps.existing.outputs.release_exists == 'false'
         run: npm run check
 
       - name: Create annotated tag
-        if: steps.existing.outputs.exists == 'false'
+        if: >
+          steps.existing.outputs.release_exists == 'false' &&
+          steps.existing.outputs.tag_exists == 'false'
         env:
           TAG: ${{ steps.version.outputs.tag }}
         shell: bash
@@ -85,8 +94,15 @@ jobs:
           git tag -a "$TAG" -m "jev-mcp $TAG" "${{ github.event.workflow_run.head_sha }}"
           git push origin "$TAG"
 
+      - name: Fetch release tag
+        if: steps.existing.outputs.release_exists == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
+
       - name: Build release assets
-        if: steps.existing.outputs.exists == 'false'
+        if: steps.existing.outputs.release_exists == 'false'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
@@ -105,7 +121,7 @@ jobs:
           test -s release-assets/RELEASE_NOTES.md
 
       - name: Create GitHub Release
-        if: steps.existing.outputs.exists == 'false'
+        if: steps.existing.outputs.release_exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}

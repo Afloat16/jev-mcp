@@ -50,7 +50,26 @@ git -C "$runtime" checkout --detach FETCH_HEAD
 )
 
 export JEV_MCP_RUNTIME_DIR="$runtime"
-node "$runtime/dist/cli.js" install "$target" "$@"
+
+skip_key=false
+for arg in "$@"; do
+  if [ "$arg" = "--skip-key" ]; then
+    skip_key=true
+    break
+  fi
+done
+
+if [ "$skip_key" = false ] && [ -z "${TYPESAFE_API_KEY:-}" ] && [ ! -t 0 ]; then
+  if [ -e /dev/tty ]; then
+    node "$runtime/dist/cli.js" install "$target" "$@" < /dev/tty
+  else
+    echo "jev-mcp installer: interactive key entry needs a TTY." >&2
+    echo "Set TYPESAFE_API_KEY in the environment or rerun from an interactive terminal." >&2
+    exit 1
+  fi
+else
+  node "$runtime/dist/cli.js" install "$target" "$@"
+fi
 
 echo
 echo "jev-mcp runtime: $runtime"

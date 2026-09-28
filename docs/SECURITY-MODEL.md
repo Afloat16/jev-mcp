@@ -36,12 +36,15 @@ alternate endpoint. Review environment configuration before use.
 
 ### Credential exposure
 
-The API key is read locally from `.env` or the process environment and sent as
-a Bearer token to the configured endpoint.
+The API key is read locally from the process environment, an explicitly
+configured `JEV_ENV_FILE`, a checkout-local `.env`, or the installer-managed
+`~/.jev-mcp/.env`, then sent as a Bearer token to the configured endpoint.
 
-Mitigation: `.env` is ignored by Git; setup scripts do not print the key; the
-repository includes a tracked-file secret scanner. Rotate any key that has
-appeared in a shared surface or Git history.
+Mitigation: credential files are kept outside client MCP configuration;
+checkout `.env` is ignored by Git; the bootstrap stores its shared credential
+under the user's `~/.jev-mcp` directory; setup/install flows do not print the
+key; and the repository includes a tracked-file secret scanner. Rotate any key
+that has appeared in a shared surface or Git history.
 
 ### Dependency / supply-chain risk
 

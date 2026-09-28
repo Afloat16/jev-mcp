@@ -7,7 +7,7 @@
 
 **Unofficial, community-maintained MCP server for TypeSafe AI Jev.**
 
-[简体中文](README.zh-CN.md) · [Quick start](docs/QUICKSTART.md) · [Examples](examples/README.md) · [Security](SECURITY.md) · [FAQ](docs/FAQ.md)
+[简体中文](README.zh-CN.md) · [One-click install](docs/INSTALLATION.md) · [Quick start](docs/QUICKSTART.md) · [Examples](examples/README.md) · [Security](SECURITY.md) · [FAQ](docs/FAQ.md)
 
 `jev-mcp` exposes TypeSafe AI's Jev decision model as four conservative,
 read-only MCP tools for **bounded probabilistic decisions**.
@@ -92,15 +92,50 @@ Successful responses include local metadata similar to:
 
 That metadata is added by this MCP server; it is not Jev model output.
 
-## 60-second install
+## One-command install
 
-Requirements:
+No clone and no manual MCP JSON/TOML editing is required.
 
-- Node.js 20+
-- a TypeSafe API key / applicable TypeSafe access and credits
-- an MCP host that can launch a local stdio server
+```bash
+# Codex
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
 
-Clone and set up:
+# Claude Code
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install claude-code
+
+# Kimi Code
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install kimi
+
+# ZCode
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install zcode
+
+# Cursor
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install cursor
+
+# Gemini CLI
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install gemini
+
+# Configure every detected user-level client
+npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+```
+
+On the first install, the CLI asks for the TypeSafe API key with **hidden
+terminal input** and stores it only in `~/.jev-mcp/.env`. The key is not
+inserted into client MCP configuration.
+
+The installer preserves unrelated JSON settings and creates a
+`.jev-mcp.bak` backup before changing an existing JSON config.
+
+Supported targets include Codex, Claude Code, Kimi Code, ZCode, Cursor,
+Gemini CLI, Windsurf-compatible config, generic `.agents/mcp.json`, and
+project-scoped VS Code/Copilot Agent configuration.
+
+See [Installation](docs/INSTALLATION.md) for all commands, uninstall steps,
+Windows behavior, and the Cursor deeplink.
+
+### Source install
+
+For contributors or users who prefer a local checkout:
 
 ```bash
 git clone https://github.com/Afloat16/jev-mcp.git
@@ -115,12 +150,6 @@ git clone https://github.com/Afloat16/jev-mcp.git
 cd jev-mcp
 ./setup.ps1
 ```
-
-The setup script reads the API key without echoing it, stores it only in the
-local gitignored `.env` file when needed, installs dependencies, and runs local
-checks.
-
-For a more explicit walkthrough, see [Quick start](docs/QUICKSTART.md).
 
 ## Codex configuration
 
@@ -227,6 +256,8 @@ should be documented in [CHANGELOG.md](CHANGELOG.md) and migration notes.
 
 ## Documentation
 
+- [One-click installation](docs/INSTALLATION.md)
+- [Supported AI clients](docs/CLIENTS.md)
 - [Quick start](docs/QUICKSTART.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security and privacy model](docs/SECURITY-MODEL.md)

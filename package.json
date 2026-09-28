@@ -5,6 +5,14 @@
   "description": "Unofficial conservative MCP server exposing TypeSafe AI Jev as a secondary probabilistic decision signal.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Afloat16/jev-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Afloat16/jev-mcp/issues"
+  },
+  "homepage": "https://github.com/Afloat16/jev-mcp#readme",
   "engines": {
     "node": ">=20"
   },

@@ -1,27 +1,29 @@
 # Quick start
 
-The fastest path is the one-command installer. It downloads the package from
-GitHub through npm, configures the selected MCP client, and stores the TypeSafe
-credential outside the client config.
+The fastest path is the bootstrap installer. It creates a managed local runtime,
+configures the selected MCP client, and keeps the TypeSafe credential outside
+client configuration.
 
 ## 1. Requirements
 
-- Node.js 20+ with npm/npx
+- Node.js 20+
+- Git
+- npm
 - a TypeSafe API key / applicable TypeSafe access and credits
 - the target AI client
 
-Check Node:
+## 2. Install
+
+Codex on macOS/Linux:
 
 ```bash
-node --version
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 ```
 
-## 2. Install into your client
+Codex on Windows PowerShell:
 
-Example for Codex:
-
-```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
 ```
 
 Other target IDs:
@@ -37,31 +39,33 @@ agents
 vscode
 ```
 
-Or configure every detected user-level client:
+Configure every detected user-level client on macOS/Linux:
 
 ```bash
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
 ```
 
-The first install asks for the TypeSafe API key using hidden terminal input.
-It is stored in:
+The installer creates:
 
 ```text
-~/.jev-mcp/.env
+~/.jev-mcp/runtime   # managed local runtime
+~/.jev-mcp/.env      # local credential file
 ```
 
-The key is not placed in the target client's MCP configuration.
+The API key is entered with hidden input and is not placed in the target
+client's MCP configuration.
 
-See [INSTALLATION.md](INSTALLATION.md) for platform-specific details.
+See [INSTALLATION.md](INSTALLATION.md) for all clients and lifecycle commands.
 
 ## 3. Restart the AI client
 
-MCP tool discovery normally happens when a new client/session starts. Restart
-the client or open a new session after installation.
+MCP tool discovery normally happens at client/session startup. Restart the
+client or open a new session after installation.
 
-## 4. Start with a safe synthetic test
+## 4. Safe first test
 
-Ask the host model to get a second opinion on a bounded decision such as:
+Use synthetic state and ask the host model for a second opinion on a bounded
+decision such as:
 
 ```text
 retry / rollback / escalate
@@ -69,11 +73,7 @@ retry / rollback / escalate
 
 Do not use production secrets or customer data as test input.
 
-Examples are available in [../examples/README.md](../examples/README.md).
-
 ## 5. Trust model
-
-Jev remains advisory:
 
 ```text
 deterministic evidence
@@ -88,8 +88,6 @@ endpoint. Read [SECURITY-MODEL.md](SECURITY-MODEL.md) before using the tool with
 sensitive projects.
 
 ## Source checkout alternative
-
-If you are contributing to the project or want a pinned local checkout:
 
 ```bash
 git clone https://github.com/Afloat16/jev-mcp.git

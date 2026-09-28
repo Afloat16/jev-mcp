@@ -37,3 +37,33 @@ jobs:
 
       - name: Repository checks
         run: npm run check
+
+
+  installer-smoke:
+    name: GitHub package installer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+
+      - name: Run installer from GitHub package in isolated home
+        shell: bash
+        env:
+          PACKAGE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          temp_home="$(mktemp -d)"
+          HOME="$temp_home" npx -y \
+            --package="github:Afloat16/jev-mcp#${PACKAGE_REF}" \
+            jev-mcp install cursor --skip-key
+
+          test -f "$temp_home/.cursor/mcp.json"
+          grep -q '"jev"' "$temp_home/.cursor/mcp.json"
+          ! grep -q 'TYPESAFE_API_KEY' "$temp_home/.cursor/mcp.json"

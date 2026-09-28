@@ -11,10 +11,10 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { parseEnvFile } from "./core.js";
 
-export const PACKAGE_SPEC = "github:Afloat16/jev-mcp#main";
 export const SERVER_NAME = "jev";
 
 export type InstallTarget =
@@ -50,33 +50,32 @@ export function userEnvPath(): string {
   return join(configHome(), ".env");
 }
 
-export function serverLauncher(platform = process.platform): {
+export function runtimeRoot(): string {
+  const explicit = process.env.JEV_MCP_RUNTIME_DIR?.trim();
+  if (explicit) return resolve(explicit);
+
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  return resolve(moduleDir, "..");
+}
+
+export function serverLauncher(
+  runtime = runtimeRoot(),
+  nodeExecutable = process.execPath,
+): {
   command: string;
   args: string[];
 } {
-  const args = [
-    "-y",
-    `--package=${PACKAGE_SPEC}`,
-    "jev-mcp",
-    "server",
-  ];
-
-  if (platform === "win32") {
-    return {
-      command: "cmd",
-      args: ["/d", "/s", "/c", "npx", ...args],
-    };
-  }
-
-  return { command: "npx", args };
+  return {
+    command: nodeExecutable,
+    args: [resolve(runtime, "dist", "cli.js"), "server"],
+  };
 }
 
-export function genericMcpEntry(platform = process.platform): JsonObject {
-  const launcher = serverLauncher(platform);
-  return {
-    command: launcher.command,
-    args: launcher.args,
-  };
+export function genericMcpEntry(
+  runtime = runtimeRoot(),
+  nodeExecutable = process.execPath,
+): JsonObject {
+  return serverLauncher(runtime, nodeExecutable);
 }
 
 function isObject(value: unknown): value is JsonObject {
@@ -124,14 +123,11 @@ function deleteNested(root: JsonObject, path: string[]): boolean {
 
 export function jsonConfigForTarget(
   target: Exclude<InstallTarget, "codex" | "claude-code">,
-  platform = process.platform,
+  runtime = runtimeRoot(),
+  nodeExecutable = process.execPath,
 ): { path: string; keyPath: string[]; value: JsonObject } {
   const home = homedir();
-  const launcher = serverLauncher(platform);
-  const base = {
-    command: launcher.command,
-    args: launcher.args,
-  };
+  const base = serverLauncher(runtime, nodeExecutable);
 
   switch (target) {
     case "kimi":
@@ -378,7 +374,6 @@ function targetLooksInstalled(target: InstallTarget): boolean {
   if (target === "claude-code") return commandExists("claude");
 
   const config = jsonConfigForTarget(target);
-  if (target === "vscode") return existsSync(dirname(config.path));
   return existsSync(dirname(config.path));
 }
 

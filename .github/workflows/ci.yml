@@ -36,3 +36,12 @@ jobs:
 
       - name: Repository checks
         run: npm run check
+
+      - name: Upload generated lockfile for repository hardening
+        if: matrix.node == '20.x'
+        uses: actions/upload-artifact@v7
+        with:
+          name: package-lock-node20
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 1

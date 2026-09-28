@@ -29,9 +29,11 @@ change the host model selected by the user.
 
 ## Does the API key get sent to the host model?
 
-The server reads the key from its local environment and uses it as an
-Authorization header for the configured API request. The tool output does not
-intentionally include the credential.
+The server reads the key from its local process environment or a local
+credential file. The one-command installer stores the shared key in
+`~/.jev-mcp/.env` and does not place it in AI client MCP configuration. The
+server uses the key only as the Authorization header for the configured API
+request; tool output does not intentionally include the credential.
 
 Do not put credentials into tool `state`, prompts, screenshots, logs, issues,
 or examples.

@@ -7,7 +7,7 @@
 
 **非官方、社区维护的 TypeSafe AI Jev MCP Server。**
 
-[English](README.md) · [快速开始](docs/QUICKSTART.md) · [示例](examples/README.md) · [安全说明](SECURITY.md) · [FAQ](docs/FAQ.md)
+[English](README.md) · [一键安装](docs/INSTALLATION.md) · [快速开始](docs/QUICKSTART.md) · [示例](examples/README.md) · [安全说明](SECURITY.md) · [FAQ](docs/FAQ.md)
 
 `jev-mcp` 将 TypeSafe AI 的 Jev 决策模型暴露为 4 个保守、只读的 MCP 工具，
 用于**边界明确的概率决策**。
@@ -72,15 +72,58 @@ API key 只放在本地进程环境变量或被 Git 忽略的 `.env` 文件中�
 
 四个工具均声明为只读，不会修改文件、执行 shell、部署基础设施，也不会切换你选择的模型。
 
-## 60 秒安装
+## 一条命令安装
 
-要求：
-
-- Node.js 20+
-- TypeSafe API key / 可用的 TypeSafe 账户与额度
-- 支持启动本地 stdio MCP server 的客户端
+无需手工修改 MCP JSON/TOML。安装器会把共享运行时安装到
+`~/.jev-mcp/runtime`，隐藏输入 TypeSafe key，并自动配置目标 AI。
 
 macOS / Linux：
+
+```bash
+# Codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
+
+# Kimi Code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
+
+# ZCode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
+
+# Cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
+
+# Gemini CLI
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
+```
+
+Windows PowerShell（把 `codex` 换成其他目标即可）：
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
+
+自动配置检测到的用户级客户端：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+```
+
+TypeSafe key 只保存在本机 `~/.jev-mcp/.env`，不会写入各 AI 的 MCP 配置；
+修改已有 JSON 配置前会自动保存备份。
+
+当前支持 Codex、Claude Code、Kimi Code、ZCode、Cursor、Gemini CLI、
+Windsurf 兼容配置、通用 `.agents/mcp.json`，以及项目级
+VS Code/Copilot Agent 配置。
+
+完整 Windows 命令、更新、卸载、`--skip-key` 和高级参数见
+[安装说明](docs/INSTALLATION.md)。
+
+### 从源码安装
+
+适合贡献者或希望固定本地 checkout 的用户：
 
 ```bash
 git clone https://github.com/Afloat16/jev-mcp.git
@@ -95,10 +138,6 @@ git clone https://github.com/Afloat16/jev-mcp.git
 cd jev-mcp
 ./setup.ps1
 ```
-
-安装脚本会静默读取 API key，需要时写入本地 gitignored `.env`，安装依赖并运行本地检查。
-
-更详细步骤见 [快速开始](docs/QUICKSTART.md)。
 
 ## Codex 配置
 
@@ -142,9 +181,9 @@ MCP 真正有价值的地方是**稳定工具边界**：结构化输出、可重
 | `JEV_MODEL` | 否 | `jev-latest` | Jev 模型覆盖 |
 | `TYPESAFE_BASE_URL` | 否 | `https://api.typesafe.ai` | API 地址 |
 | `TYPESAFE_TIMEOUT_MS` | 否 | `15000` | 250–120000 ms 请求超时 |
-| `JEV_ENV_FILE` | 否 | 项目 `.env` | 其他 env 文件路径 |
+| `JEV_ENV_FILE` | 否 | 自动 | 显式 env 文件；否则先项目 `.env`，再 `~/.jev-mcp/.env` |
 
-进程环境变量优先于 `.env` 中的同名值。
+进程环境变量优先于文件中的同名值。未指定 `JEV_ENV_FILE` 时，会先读取项目 `.env`，再读取安装器管理的 `~/.jev-mcp/.env`。
 
 ### 密钥规则
 
@@ -188,6 +227,8 @@ npm run inspect
 
 ## 文档
 
+- [一键安装](docs/INSTALLATION.md)
+- [支持的 AI 客户端](docs/CLIENTS.md)
 - [快速开始](docs/QUICKSTART.md)
 - [架构](docs/ARCHITECTURE.md)
 - [安全与隐私模型](docs/SECURITY-MODEL.md)

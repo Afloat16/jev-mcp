@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 import { McpServer } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
@@ -19,20 +20,32 @@ import {
   type JsonValue,
 } from "./core.js";
 
-function loadProjectEnv(): void {
-  const moduleDir = dirname(fileURLToPath(import.meta.url));
-  const projectRoot = resolve(moduleDir, "..");
-  const envPath = process.env.JEV_ENV_FILE ?? resolve(projectRoot, ".env");
-
+function loadEnvFile(envPath: string): void {
   if (!existsSync(envPath)) return;
-
   const parsed = parseEnvFile(readFileSync(envPath, "utf8"));
   for (const [key, value] of Object.entries(parsed)) {
     if (process.env[key] === undefined) process.env[key] = value;
   }
 }
 
-loadProjectEnv();
+function loadEnvironment(): void {
+  if (process.env.JEV_ENV_FILE?.trim()) {
+    loadEnvFile(process.env.JEV_ENV_FILE.trim());
+    return;
+  }
+
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  const projectRoot = resolve(moduleDir, "..");
+  const userConfigHome =
+    process.env.JEV_MCP_CONFIG_HOME?.trim() || resolve(homedir(), ".jev-mcp");
+
+  // Explicit process environment wins. A checkout-local .env has priority over
+  // the global installer-managed credential file.
+  loadEnvFile(resolve(projectRoot, ".env"));
+  loadEnvFile(resolve(userConfigHome, ".env"));
+}
+
+loadEnvironment();
 
 const stateSchema = z.union([
   z.string(),

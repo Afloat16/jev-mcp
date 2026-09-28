@@ -22,7 +22,7 @@ for (const file of markdownFiles) {
     if (
       !target ||
       target.startsWith("#") ||
-      /^(?:https?:|mailto:)/i.test(target)
+      /^(?:https?:|mailto:|cursor:|vscode:)/i.test(target)
     ) {
       continue;
     }

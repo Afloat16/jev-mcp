@@ -7,7 +7,7 @@
 
 **Unofficial, community-maintained MCP server for TypeSafe AI Jev.**
 
-[简体中文](README.zh-CN.md) · [Quick start](docs/QUICKSTART.md) · [Examples](examples/README.md) · [Security](SECURITY.md) · [FAQ](docs/FAQ.md)
+[简体中文](README.zh-CN.md) · [One-click install](docs/INSTALLATION.md) · [Quick start](docs/QUICKSTART.md) · [Examples](examples/README.md) · [Security](SECURITY.md) · [FAQ](docs/FAQ.md)
 
 `jev-mcp` exposes TypeSafe AI's Jev decision model as four conservative,
 read-only MCP tools for **bounded probabilistic decisions**.
@@ -92,15 +92,59 @@ Successful responses include local metadata similar to:
 
 That metadata is added by this MCP server; it is not Jev model output.
 
-## 60-second install
+## One-command install
 
-Requirements:
+No manual MCP JSON/TOML editing is required. The bootstrap installs a shared
+runtime at `~/.jev-mcp/runtime`, asks for the TypeSafe key with hidden input,
+and configures the selected client.
 
-- Node.js 20+
-- a TypeSafe API key / applicable TypeSafe access and credits
-- an MCP host that can launch a local stdio server
+macOS / Linux:
 
-Clone and set up:
+```bash
+# Codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
+
+# Kimi Code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
+
+# ZCode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
+
+# Cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
+
+# Gemini CLI
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
+```
+
+Windows PowerShell (replace `codex` with another target as needed):
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
+
+To configure every detected user-level client:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+```
+
+The key is stored only in `~/.jev-mcp/.env`; client MCP configs contain no
+TypeSafe credential. Existing JSON configs are backed up before modification.
+
+Supported targets: Codex, Claude Code, Kimi Code, ZCode, Cursor, Gemini CLI,
+Windsurf-compatible config, generic `.agents/mcp.json`, and project-scoped
+VS Code/Copilot Agent configuration.
+
+See [Installation](docs/INSTALLATION.md) for Windows commands, updates,
+uninstall, `--skip-key`, and advanced controls.
+
+### Source install
+
+For contributors or users who prefer a local checkout:
 
 ```bash
 git clone https://github.com/Afloat16/jev-mcp.git
@@ -115,12 +159,6 @@ git clone https://github.com/Afloat16/jev-mcp.git
 cd jev-mcp
 ./setup.ps1
 ```
-
-The setup script reads the API key without echoing it, stores it only in the
-local gitignored `.env` file when needed, installs dependencies, and runs local
-checks.
-
-For a more explicit walkthrough, see [Quick start](docs/QUICKSTART.md).
 
 ## Codex configuration
 
@@ -166,9 +204,9 @@ structured output, orchestration, explicit thresholds, or shared agent workflows
 | `JEV_MODEL` | no | `jev-latest` | Jev model override |
 | `TYPESAFE_BASE_URL` | no | `https://api.typesafe.ai` | API base URL |
 | `TYPESAFE_TIMEOUT_MS` | no | `15000` | Request timeout, 250–120000 ms |
-| `JEV_ENV_FILE` | no | project `.env` | Alternate env file path |
+| `JEV_ENV_FILE` | no | auto | Explicit env file; otherwise project `.env`, then `~/.jev-mcp/.env` |
 
-Existing process environment variables override values loaded from `.env`.
+Existing process environment variables override file values. Without `JEV_ENV_FILE`, a checkout-local `.env` is loaded before the installer-managed `~/.jev-mcp/.env`.
 
 ### Secret-handling rules
 
@@ -227,6 +265,8 @@ should be documented in [CHANGELOG.md](CHANGELOG.md) and migration notes.
 
 ## Documentation
 
+- [One-click installation](docs/INSTALLATION.md)
+- [Supported AI clients](docs/CLIENTS.md)
 - [Quick start](docs/QUICKSTART.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security and privacy model](docs/SECURITY-MODEL.md)

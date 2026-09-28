@@ -204,9 +204,9 @@ structured output, orchestration, explicit thresholds, or shared agent workflows
 | `JEV_MODEL` | no | `jev-latest` | Jev model override |
 | `TYPESAFE_BASE_URL` | no | `https://api.typesafe.ai` | API base URL |
 | `TYPESAFE_TIMEOUT_MS` | no | `15000` | Request timeout, 250–120000 ms |
-| `JEV_ENV_FILE` | no | project `.env` | Alternate env file path |
+| `JEV_ENV_FILE` | no | auto | Explicit env file; otherwise project `.env`, then `~/.jev-mcp/.env` |
 
-Existing process environment variables override values loaded from `.env`.
+Existing process environment variables override file values. Without `JEV_ENV_FILE`, a checkout-local `.env` is loaded before the installer-managed `~/.jev-mcp/.env`.
 
 ### Secret-handling rules
 

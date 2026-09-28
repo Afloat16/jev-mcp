@@ -27,7 +27,7 @@ if [ ! -d .git ]; then
   git init -b main
 fi
 
-npm install --no-audit --no-fund
+npm ci --no-audit --no-fund
 git add .
 npm run secrets:check
 npm run check
@@ -52,8 +52,7 @@ fi
 
 repo_full="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 node scripts/set-repo-metadata.mjs "$repo_full"
-npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-git add package.json package-lock.json
+git add package.json
 if ! git diff --cached --quiet; then
   git commit -m "chore: add GitHub repository metadata"
   git push origin main

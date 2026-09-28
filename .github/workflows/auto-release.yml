@@ -1,0 +1,113 @@
+name: Auto Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout validated main commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")"
+          tag="v${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Skip existing release
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1 ||              git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify release metadata
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "^## ${VERSION}\b" CHANGELOG.md
+          grep -q "export const VERSION = \"${VERSION}\";" src/core.ts
+          grep -q "JEV_MCP_GIT_REF:-v${VERSION}" scripts/install.sh
+          grep -q "\"v${VERSION}\"" scripts/install.ps1
+
+      - name: Install locked dependencies
+        if: steps.existing.outputs.exists == 'false'
+        run: npm ci --no-audit --no-fund
+
+      - name: Re-run repository checks
+        if: steps.existing.outputs.exists == 'false'
+        run: npm run check
+
+      - name: Create annotated tag
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "jev-mcp $TAG" "${{ github.event.workflow_run.head_sha }}"
+          git push origin "$TAG"
+
+      - name: Build release assets
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          git archive --format=zip --prefix="jev-mcp-${VERSION}/"             --output="release-assets/jev-mcp-${VERSION}.zip" "$TAG"
+          git archive --format=tar.gz --prefix="jev-mcp-${VERSION}/"             --output="release-assets/jev-mcp-${VERSION}.tar.gz" "$TAG"
+          sha256sum release-assets/jev-mcp-* > release-assets/SHA256SUMS.txt
+          awk -v version="$VERSION" '
+            $0 ~ "^## " version { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-assets/RELEASE_NOTES.md
+          test -s release-assets/RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG"             release-assets/jev-mcp-*.zip             release-assets/jev-mcp-*.tar.gz             release-assets/SHA256SUMS.txt             --verify-tag             --notes-file release-assets/RELEASE_NOTES.md             --title "$TAG"

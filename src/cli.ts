@@ -4,6 +4,7 @@ import {
   ensureCredential,
   installTargets,
   removeStoredCredential,
+  runtimeRoot,
   uninstallTargets,
   type InstallTarget,
 } from "./installer.js";
@@ -18,22 +19,28 @@ Usage:
   jev-mcp install <target|all> [--skip-key]
   jev-mcp uninstall <target|all>
   jev-mcp targets
+  jev-mcp runtime
   jev-mcp forget-key
 
 Targets:
   codex         OpenAI Codex CLI + VS Code extension shared MCP config
   claude-code   Anthropic Claude Code (user scope)
-  kimi          Kimi Code CLI
+  kimi          Kimi Code
   zcode         ZCode
   cursor        Cursor
   gemini        Gemini CLI
-  windsurf      Windsurf / Devin Desktop legacy-compatible MCP config
+  windsurf      Windsurf-compatible MCP config
   agents        Generic ~/.agents/mcp.json
   vscode        VS Code workspace .vscode/mcp.json
 
-Examples:
-  npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
-  npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+Recommended bootstrap:
+  macOS/Linux:
+    curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
+
+  Windows PowerShell:
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+
+After bootstrap, the local CLI lives under ~/.jev-mcp/runtime.
 `.trim());
 }
 
@@ -59,6 +66,11 @@ async function main(): Promise<void> {
 
   if (command === "targets") {
     console.log(INSTALL_TARGETS.join("\n"));
+    return;
+  }
+
+  if (command === "runtime") {
+    console.log(runtimeRoot());
     return;
   }
 
@@ -107,7 +119,9 @@ async function main(): Promise<void> {
     for (const result of uninstallTargets(targets)) {
       console.log(`✓ ${result.target}: ${result.detail}`);
     }
-    console.log("Stored TypeSafe credentials were left untouched. Run 'jev-mcp forget-key' to remove them.");
+    console.log(
+      "Stored TypeSafe credentials were left untouched. Run 'jev-mcp forget-key' to remove them.",
+    );
     return;
   }
 

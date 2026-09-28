@@ -94,44 +94,53 @@ That metadata is added by this MCP server; it is not Jev model output.
 
 ## One-command install
 
-No clone and no manual MCP JSON/TOML editing is required.
+No manual MCP JSON/TOML editing is required. The bootstrap installs a shared
+runtime at `~/.jev-mcp/runtime`, asks for the TypeSafe key with hidden input,
+and configures the selected client.
+
+macOS / Linux:
 
 ```bash
 # Codex
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install codex
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- codex
 
 # Claude Code
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install claude-code
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- claude-code
 
 # Kimi Code
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install kimi
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- kimi
 
 # ZCode
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install zcode
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- zcode
 
 # Cursor
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install cursor
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- cursor
 
 # Gemini CLI
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install gemini
-
-# Configure every detected user-level client
-npx -y --package=github:Afloat16/jev-mcp#main jev-mcp install all
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash -s -- gemini
 ```
 
-On the first install, the CLI asks for the TypeSafe API key with **hidden
-terminal input** and stores it only in `~/.jev-mcp/.env`. The key is not
-inserted into client MCP configuration.
+Windows PowerShell (replace `codex` with another target as needed):
 
-The installer preserves unrelated JSON settings and creates a
-`.jev-mcp.bak` backup before changing an existing JSON config.
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.ps1))) -Target codex
+```
 
-Supported targets include Codex, Claude Code, Kimi Code, ZCode, Cursor,
-Gemini CLI, Windsurf-compatible config, generic `.agents/mcp.json`, and
-project-scoped VS Code/Copilot Agent configuration.
+To configure every detected user-level client:
 
-See [Installation](docs/INSTALLATION.md) for all commands, uninstall steps,
-Windows behavior, and the Cursor deeplink.
+```bash
+curl -fsSL https://raw.githubusercontent.com/Afloat16/jev-mcp/main/scripts/install.sh | bash
+```
+
+The key is stored only in `~/.jev-mcp/.env`; client MCP configs contain no
+TypeSafe credential. Existing JSON configs are backed up before modification.
+
+Supported targets: Codex, Claude Code, Kimi Code, ZCode, Cursor, Gemini CLI,
+Windsurf-compatible config, generic `.agents/mcp.json`, and project-scoped
+VS Code/Copilot Agent configuration.
+
+See [Installation](docs/INSTALLATION.md) for Windows commands, updates,
+uninstall, `--skip-key`, and advanced controls.
 
 ### Source install
 

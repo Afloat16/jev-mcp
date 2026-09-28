@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($userName) -or [string]::IsNullOrWhiteSpace($us
 }
 
 if (-not (Test-Path .git)) { & git init -b main }
-& npm install --no-audit --no-fund
+& npm ci --no-audit --no-fund
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & git add .
 & npm run secrets:check
@@ -40,9 +40,7 @@ if ($LASTEXITCODE -ne 0) {
 $repoFull = & gh repo view --json nameWithOwner --jq .nameWithOwner
 & node scripts/set-repo-metadata.mjs $repoFull
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& git add package.json package-lock.json
+& git add package.json
 & git diff --cached --quiet
 if ($LASTEXITCODE -ne 0) {
   & git commit -m "chore: add GitHub repository metadata"

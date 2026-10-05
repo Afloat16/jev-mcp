@@ -43,7 +43,7 @@
     "cli:smoke": "node dist/cli.js targets"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -74,6 +74,9 @@ API key 只放在本地进程环境变量或被 Git 忽略的 `.env` 文件中�
 
 ## 一条命令安装
 
+安装前需要 **Node.js 20+、npm、Git、受支持的 MCP 客户端，以及具有相应访问权限与额度的 TypeSafe API key**。
+安装会下载运行时与依赖，工具调用需要连接所配置的 TypeSafe endpoint。本仓库未发布为 npm 包。
+
 无需手工修改 MCP JSON/TOML。安装器会把共享运行时安装到
 `~/.jev-mcp/runtime`，隐藏输入 TypeSafe key，并自动配置目标 AI。
 
@@ -198,6 +201,41 @@ MCP 真正有价值的地方是**稳定工具边界**：结构化输出、可重
 
 示例见 [examples/README.md](examples/README.md)，全部使用虚构、脱敏数据。
 
+### 第一次调用
+
+安装后重启所选客户端或开启新会话，让客户端发现工具。检查故障后仍有不确定性时，
+向 `jev_decide` 提供简短、脱敏的状态。下面是可填入 MCP Inspector 或其他
+MCP 客户端的输入参数：
+
+```json
+{
+  "state": {
+    "failure": "A CI step intermittently fails while downloading a public test fixture.",
+    "http_status": 503,
+    "local_test": "passes with the fixture already present",
+    "attempts": 1
+  },
+  "question": "Which reversible handling path should be checked next?",
+  "options": [
+    {
+      "id": "retry",
+      "description": "Retry the download once with a bounded timeout"
+    },
+    {
+      "id": "inspect",
+      "description": "Inspect the fixture host and CI network logs first"
+    },
+    {
+      "id": "review",
+      "description": "Stop automatic retries and request review"
+    }
+  ]
+}
+```
+
+这是虚构输入，不是已执行的提供方响应。真实调用会把 `state` 发送给 TypeSafe，
+并可能消耗额度。将返回的建议与日志一起复查，由主模型决定下一步。
+
 不调用 TypeSafe API 的本地检查：
 
 ```bash
@@ -258,3 +296,7 @@ MIT，见 [LICENSE](LICENSE)。
 
 许可证只覆盖本仓库代码。TypeSafe AI、OpenAI 等第三方服务、API、名称、商标、价格与
 可用性仍受各自条款和权利约束，见 [NOTICE](NOTICE)。
+
+## 相关开源项目
+
+按用途浏览 [Afloat16 项目导航](https://github.com/Afloat16/research-to-fix/blob/main/docs/PROJECTS.md)，选择需求论证、调研修复、任务验收、接口诊断、通知、MCP 建议或本地重建工具。

@@ -94,6 +94,11 @@ That metadata is added by this MCP server; it is not Jev model output.
 
 ## One-command install
 
+Requires **Node.js 20+, npm, Git, a supported MCP client, and a TypeSafe API
+key with applicable access/credits**. Installation downloads the runtime and
+dependencies; tool calls require access to the configured TypeSafe endpoint.
+This repository is not published as an npm package.
+
 No manual MCP JSON/TOML editing is required. The bootstrap installs a shared
 runtime at `~/.jev-mcp/runtime`, asks for the TypeSafe key with hidden input,
 and configures the selected client.
@@ -229,6 +234,43 @@ See [examples/README.md](examples/README.md) for redacted examples covering:
 
 All examples intentionally use synthetic data and placeholders.
 
+### First tool call
+
+After installation, restart the selected client or open a new session so it can
+discover the tools. When uncertainty remains after inspecting a failure, supply
+a small, redacted state to `jev_decide`. For example, these are its input
+arguments in MCP Inspector or another MCP client:
+
+```json
+{
+  "state": {
+    "failure": "A CI step intermittently fails while downloading a public test fixture.",
+    "http_status": 503,
+    "local_test": "passes with the fixture already present",
+    "attempts": 1
+  },
+  "question": "Which reversible handling path should be checked next?",
+  "options": [
+    {
+      "id": "retry",
+      "description": "Retry the download once with a bounded timeout"
+    },
+    {
+      "id": "inspect",
+      "description": "Inspect the fixture host and CI network logs first"
+    },
+    {
+      "id": "review",
+      "description": "Stop automatic retries and request review"
+    }
+  ]
+}
+```
+
+This is synthetic input, not a recorded provider response. A live call sends
+`state` to TypeSafe and may consume credits. Inspect the returned advisory
+alongside the logs; the host model chooses the next step.
+
 ## Local verification
 
 No TypeSafe API call:
@@ -305,3 +347,7 @@ owners. See [NOTICE](NOTICE).
 - TypeSafe AI documentation: https://docs.typesafe.ai/
 - TypeSafe AI — Introducing System One Models & Jev: https://typesafe.ai/blog/introducing-system-one-models-and-jev
 - Model Context Protocol TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+
+## Related projects
+
+See the [Afloat16 project guide](https://github.com/Afloat16/research-to-fix/blob/main/docs/PROJECTS.md) for requirements debate, evidence-driven debugging, task checks, endpoint diagnostics, notifications, MCP advice, and local reconstruction.

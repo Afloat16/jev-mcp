@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933.svg)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-stdio-6f42c1.svg)](https://modelcontextprotocol.io/)
+[![Afloat16/jev-mcp MCP server](https://glama.ai/mcp/servers/Afloat16/jev-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Afloat16/jev-mcp)
 
 **Unofficial, community-maintained MCP server for TypeSafe AI Jev.**
 
